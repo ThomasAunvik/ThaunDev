@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "app": {
+      "schema": ["http://localhost:39666/graphql"]
+    }
+  }
+}
