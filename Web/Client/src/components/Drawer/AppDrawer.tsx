@@ -1,55 +1,62 @@
-import { createStyles, List, makeStyles, SwipeableDrawer, Theme } from '@material-ui/core';
-import HomeIcon from '@material-ui/icons/Home';
-import React, { useCallback, useEffect, useState } from 'react';
-import DrawerItem, { IProps as DrawerItemProps } from '../Drawer/DrawerItem';
+import {
+  createStyles,
+  List,
+  makeStyles,
+  SwipeableDrawer,
+  Theme,
+} from "@material-ui/core";
+import HomeIcon from "@material-ui/icons/Home";
+import React, { useCallback, useEffect, useState } from "react";
+import DrawerItem, { IProps as DrawerItemProps } from "../Drawer/DrawerItem";
 
 export interface IProps {
-    isOpen: boolean;
-    setIsOpen: (value: boolean) => void;
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
 }
 
 const AppDrawer = (props: IProps) => {
-    const { isOpen, setIsOpen } = props;
-    
-    const styles = useStyles();
+  const { isOpen, setIsOpen } = props;
 
-    const [drawerItems, setDrawerItems] = useState<DrawerItemProps[]>();
+  const styles = useStyles();
 
-    const genToolbarItems = useCallback((): DrawerItemProps[] => {
-        return [
-            {
-                title: "Home",
-                Icon: HomeIcon,
-            }
-        ]
-    }, []);
+  const [drawerItems, setDrawerItems] = useState<DrawerItemProps[]>();
 
-    useEffect(() => {
-        setDrawerItems(genToolbarItems());
-    }, [genToolbarItems]);
+  const genToolbarItems = useCallback((): DrawerItemProps[] => {
+    return [
+      {
+        title: "Home",
+        Icon: HomeIcon,
+      },
+    ];
+  }, []);
 
-    return (
-        <SwipeableDrawer
-            open={isOpen}
-            onOpen={() => setIsOpen(true)}
-            onClose={() => setIsOpen(false)}
-        >
-            <div className={styles.drawerRoot}>
-                <List component="nav">
-                    {drawerItems?.map(i => 
-                        <DrawerItem key={"drawer-item-" + i.title} {...i} />
-                    )}
-                </List>
-            </div>
-        </SwipeableDrawer>)
-}
+  useEffect(() => {
+    setDrawerItems(genToolbarItems());
+  }, [genToolbarItems]);
+
+  return (
+    <SwipeableDrawer
+      open={isOpen}
+      onOpen={() => setIsOpen(true)}
+      onClose={() => setIsOpen(false)}
+    >
+      <div className={styles.drawerRoot}>
+        <List component="nav">
+          {drawerItems?.map((i) => (
+            <DrawerItem key={"drawer-item-" + i.title} {...i} />
+          ))}
+        </List>
+      </div>
+    </SwipeableDrawer>
+  );
+};
 
 export default AppDrawer;
 
-const useStyles = makeStyles((theme: Theme) => 
-    createStyles({
-        drawerRoot: {
-            width: "175px"
-        },
-    })
-)
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    drawerRoot: {
+      width: "175px",
+    },
+  })
+);

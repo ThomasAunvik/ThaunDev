@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Persistence;
+using Api.Extentions;
 using System;
 
 namespace Api
@@ -55,6 +56,7 @@ namespace Api
                 })
                 .AddDefaultEndpointSelectorPolicy()
                 .AddSystemTextJson()
+                .AddUserContextBuilder(context => new GraphQLUserContext { User = context.User })
                 .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddWebSockets()
                 .AddDataLoader()
@@ -64,6 +66,7 @@ namespace Api
             services.AddAutoMapper(typeof(User).Assembly);
 
             services.SetupGraphQLServices();
+            services.AddGraphQLAuth((settings, provider) => settings.AddPolicy("AdminPolicy", p => p.RequireClaim("role", "Admin")));
 
             services.AddCors((o) =>
             {

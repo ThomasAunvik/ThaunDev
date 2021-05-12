@@ -21,10 +21,15 @@ namespace Api.Schemas.Queries
             FieldAsync<GraphUserType>("current",
                 resolve: async (context) =>
                 {
+                    object name;
+                    context.UserContext.TryGetValue("name", out name);
                     return await _api.Users.GetCurrentUser();
                 });
 
+            this.AuthorizeWith("AdminPolicy");
             Field<ListGraphType<GraphUserType>>("users", resolve: context => api.Users.AllUsers.Take(100));
+
+            this.AuthorizeWith("AdminPolicy");
             FieldAsync<GraphUserType>("user",
                 arguments: new QueryArguments(
                     new QueryArgument<IntGraphType> { Name = "id" }

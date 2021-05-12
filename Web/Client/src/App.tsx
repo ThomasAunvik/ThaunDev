@@ -4,17 +4,17 @@ import {
   Theme,
   ThemeProvider,
 } from "@material-ui/core";
+import { createBrowserHistory } from "history";
 import React from "react";
+import { Router } from "react-router";
 import ApplicationBar from "./components/AppBar/ApplicationBar";
-import { darkTheme } from "./themes";
+import AppRoot from "./components/AppRoot/UserRoot";
+import AuthContext from "./containers/AuthContext";
 import { AppRouter } from "./router";
 import "./styles/App.css";
-import { Router } from "react-router";
-import { createBrowserHistory } from "history";
-import { RecoilRoot } from "recoil";
-import AppRoot from "./components/AppRoot/UserRoot";
+import { darkTheme } from "./themes";
 
-const history = createBrowserHistory();
+export const history = createBrowserHistory({ basename: "/" });
 
 export const appEnv = {
   API: process.env.REACT_APP_API,
@@ -27,18 +27,20 @@ const App = () => {
 
   return (
     <div className={useThemeStyle.root + " " + styles.appRoot}>
-      <RecoilRoot>
-        <AppRoot>
-          <ThemeProvider theme={darkTheme.mui}>
-            <Router history={history}>
-              <ApplicationBar />
-              <div className={styles.contentRoot}>
-                <AppRouter />
+      <AppRoot>
+        <ThemeProvider theme={darkTheme.mui}>
+          <Router history={history}>
+            <AuthContext>
+              <div>
+                <ApplicationBar />
+                <div className={styles.contentRoot}>
+                  <AppRouter />
+                </div>
               </div>
-            </Router>
-          </ThemeProvider>
-        </AppRoot>
-      </RecoilRoot>
+            </AuthContext>
+          </Router>
+        </ThemeProvider>
+      </AppRoot>
     </div>
   );
 };

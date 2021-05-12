@@ -1,4 +1,5 @@
 ﻿using Api.Schemas.Misc;
+using GraphQL;
 using GraphQL.Types;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,12 @@ namespace Api.Schemas.Queries
             foreach(var marker in queryMarkers)
             {
                 var q = marker as ObjectGraphType;
-                foreach(var f in q.Fields)
+                foreach (var f in q.Fields)
                 {
+                    if (f.RequiresAuthorization())
+                    {
+                        Console.WriteLine(f.GetPolicies());
+                    }
                     AddField(f);
                 }
             }

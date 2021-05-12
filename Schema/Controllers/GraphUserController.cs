@@ -1,5 +1,6 @@
 ﻿using Application.Users.Query;
 using Domain.GraphObjects;
+using GraphQL;
 using MediatR;
 using System;
 using System.Collections.Concurrent;
@@ -26,7 +27,7 @@ namespace Api.Schemas.Controllers
 
         }
 
-        public ConcurrentStack<GraphUser> AllUsers => new(new List<GraphUser>() { new GraphUser() { Id = 1, FirstName = "Thomas", LastName = "Aunvik" } });
+        public ConcurrentStack<GraphUser> AllUsers => new(new List<GraphUser>() { new GraphUser() { Id = 1, Username = "Thaun_", FirstName = "Thomas", LastName = "Aunvik" } });
 
         public async Task<GraphUser> GetCurrentUser()
         {
