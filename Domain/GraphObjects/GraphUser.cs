@@ -11,6 +11,8 @@ namespace Domain.GraphObjects
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
+        public GraphImage ProfilePicture { get; set; }
+
         public void CreateMappings(Profile configuration)
         {
             configuration.CreateMap<User, GraphUser>();

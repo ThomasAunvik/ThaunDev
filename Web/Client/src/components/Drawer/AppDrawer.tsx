@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import HomeIcon from "@material-ui/icons/Home";
 import React, { useCallback, useEffect, useState } from "react";
+import { Paths } from "../../router";
 import DrawerItem, { IProps as DrawerItemProps } from "../Drawer/DrawerItem";
 
 export interface IProps {
@@ -26,6 +27,7 @@ const AppDrawer = (props: IProps) => {
       {
         title: "Home",
         Icon: HomeIcon,
+        path: Paths.home,
       },
     ];
   }, []);
@@ -43,7 +45,11 @@ const AppDrawer = (props: IProps) => {
       <div className={styles.drawerRoot}>
         <List component="nav">
           {drawerItems?.map((i) => (
-            <DrawerItem key={"drawer-item-" + i.title} {...i} />
+            <DrawerItem
+              key={"drawer-item-" + i.title}
+              {...i}
+              onClick={() => setIsOpen(false)}
+            />
           ))}
         </List>
       </div>

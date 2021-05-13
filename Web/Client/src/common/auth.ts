@@ -13,6 +13,7 @@ export const getClientSettings = (): UserManagerSettings => ({
   scope: "openid profile email thaun-dev-api roles",
   filterProtocolClaims: true,
   loadUserInfo: true,
+  automaticSilentRenew: true,
   silent_redirect_uri: process.env.REACT_APP_APP + "/silent-refresh",
   userStore: new WebStorageStateStore({ store: localStorage }),
   revokeAccessTokenOnSignout: true,
@@ -27,6 +28,7 @@ export const validateAuth = async () => {
 };
 
 export const startAuthentication = async () => {
+  await userManager.removeUser();
   await userManager.clearStaleState();
 
   await userManager.signinRedirect();
@@ -35,7 +37,7 @@ export const startAuthentication = async () => {
 export const completeAuthentication = async () => {
   var user = await userManager.getUser();
   if (!user) {
-    user = await userManager.signinRedirectCallback();
+    user = await userManager.signinCallback();
   }
 
   return user;

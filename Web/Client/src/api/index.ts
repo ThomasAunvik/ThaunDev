@@ -23,7 +23,7 @@ const authMiddleware = new ApolloLink(((operation, forward) => {
   operation.setContext(({ headers = {} }) => ({
     headers: {
       ...headers,
-      authorization: jsonStorage?.access_token
+      Authorization: jsonStorage?.access_token
         ? `Bearer ${jsonStorage?.access_token}`
         : "",
     },
@@ -37,15 +37,52 @@ export const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export const fetchObj = async <Type>(query: DocumentNode) => {
-  const result = await client.query({
-    query: query,
+export const fetchObj = <Type>(
+  query: DocumentNode,
+  field: string
+): Promise<Type | null> => {
+  return new Promise<Type | null>((success) => {
+    client
+      .query({
+        query: query,
+      })
+      .then((result) => {
+        if (result.error || result.errors) {
+          console.error(result.error ?? result.errors);
+          success(null);
+        }
+
+        success(result.data[field] as Type);
+      })
+      .catch(() => {
+        console.log("Error fetching...");
+        success(null);
+      });
   });
+};
 
-  if (result.error || result.errors) {
-    console.error(result.error ?? result.errors);
-    return null;
-  }
+export const editObj = <Type>(
+  query: DocumentNode,
+  field: string,
+  variables: Map<string, any>
+): Promise<Type | null> => {
+  return new Promise<Type | null>((success) => {
+    client
+      .mutate({
+        mutation: query,
+        variables: Object.fromEntries(variables),
+      })
+      .then((result) => {
+        if (result.errors) {
+          console.error(result.errors);
+          success(null);
+        }
 
-  return result.data as Type;
+        success(result.data[field] as Type);
+      })
+      .catch((error) => {
+        console.error("Error fetching...", error);
+        success(null);
+      });
+  });
 };

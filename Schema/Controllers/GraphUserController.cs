@@ -1,7 +1,9 @@
-﻿using Application.Users.Query;
+﻿using Application.Users.Command;
+using Application.Users.Query;
 using Domain.GraphObjects;
 using GraphQL;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,12 +19,13 @@ namespace Api.Schemas.Controllers
         Task<GraphUser> GetCurrentUser();
         Task<GraphUser> GetUser(int id);
         GraphUser AddUser(GraphUser user);
+        Task<GraphUser> EditUser(int id, GraphUser user);
     }
 
     public class GraphUserController : GraphBaseController, IGraphUserController
     {
 
-        public GraphUserController(IMediator mediator) : base(mediator)
+        public GraphUserController(IMediator mediator, IHttpContextAccessor context) : base(mediator, context)
         {
 
         }
@@ -31,7 +34,7 @@ namespace Api.Schemas.Controllers
 
         public async Task<GraphUser> GetCurrentUser()
         {
-            return await _mediator.Send(new Details.Query { Id = 1 });
+            return await _mediator.Send(new Details.Query { AuthId = AuthId });
         }
 
         public async Task<GraphUser> GetUser(int id)
@@ -42,6 +45,11 @@ namespace Api.Schemas.Controllers
         public GraphUser AddUser(GraphUser user)
         {
             return new GraphUser() { Id = 1, FirstName = "Thomas", LastName = "Aunvik" };
+        }
+
+        public async Task<GraphUser> EditUser(int id, GraphUser user)
+        {
+            return await _mediator.Send(new Edit.Command { Id = id, AuthId = AuthId, Roles = UserRoles, User = user });
         }
     }
 }

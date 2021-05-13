@@ -11,20 +11,12 @@ namespace Api.Schemas.Queries
 {
     public class CompositeQuery : ObjectGraphType
     {
-        public CompositeQuery(IEnumerable<IGraphQueryMarker> queryMarkers)
+        public CompositeQuery(IEnumerable<IGraphQueryMarker> queryMarkers, IApiApplication api)
         {
-            Name = "CompositeQuery";
+            Name = "ApplicationQuery";
             foreach(var marker in queryMarkers)
             {
-                var q = marker as ObjectGraphType;
-                foreach (var f in q.Fields)
-                {
-                    if (f.RequiresAuthorization())
-                    {
-                        Console.WriteLine(f.GetPolicies());
-                    }
-                    AddField(f);
-                }
+                marker.SetupQueries(this, api);
             }
         }
     }

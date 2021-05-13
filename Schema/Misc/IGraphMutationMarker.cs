@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Api.Schemas.Misc
 {
-    public interface IGraphQueryMarker
+    public interface IGraphMutationMarker
     {
-        public void SetupQueries(ObjectGraphType graph, IApiApplication api);
+        public void SetupMutations(ObjectGraphType graph, IApiApplication api);
     }
 }

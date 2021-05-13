@@ -7,6 +7,10 @@ export const queryCurrentUser = gql`
       username
       lastName
       firstName
+      profilePicture {
+        name
+        data
+      }
     }
   }
 `;
@@ -18,6 +22,25 @@ export const queryGetUser = gql`
       username
       lastName
       firstName
+      profilePicture {
+        name
+        data
+      }
+    }
+  }
+`;
+
+export const mutationEditUser = gql`
+  mutation EditUser($id: Int, $user: GraphEditUserInputType) {
+    edituser(id: $id, user: $user) {
+      id
+      username
+      lastName
+      firstName
+      profilePicture {
+        name
+        data
+      }
     }
   }
 `;

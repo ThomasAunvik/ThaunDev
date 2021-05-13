@@ -1,12 +1,10 @@
 using Api.Middlewares;
 using Api.Schemas;
 using Api.Schemas.Misc;
-using Api.Schemas.Queries;
 using Application.Users.Query;
 using Domain.Entities;
 using Domain.GraphTypes;
 using GraphQL.Server;
-using GraphQL.Server.Ui.Playground;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,7 +15,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Persistence;
 using Api.Extentions;
-using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using GraphQL.Server.Ui.Playground;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Api
 {
@@ -39,11 +43,30 @@ namespace Api
             services.AddControllers();
 
             var appUrl = Configuration.GetSection("Urls").GetValue<string>("App");
+            var authUrl = Configuration.GetSection("Urls").GetValue<string>("Auth");
+
+
+            var authRealm = Configuration.GetSection("AuthConfig").GetSection("Realm").Value;
+            var authClientId = Configuration.GetSection("AuthConfig").GetSection("ClientId").Value;
 
             var apiConnectionStringPostfix = "ApiConnection";
             var apiConnectionString = Configuration.GetConnectionString(apiConnectionStringPostfix);
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(apiConnectionString));
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
+            {
+                o.Authority = authUrl + "/realms/" + authRealm;
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidAudiences = new string[] { authClientId, "account" }
+                };
+                o.SaveToken = true;
+                o.Validate();
+            });
 
             services
                 .AddSingleton<IApiApplication, ApiApplication>()
@@ -54,9 +77,17 @@ namespace Api
                     var logger = provider.GetRequiredService<ILogger<Startup>>();
                     options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occured", ctx.OriginalException.Message);
                 })
+                .AddGraphQLAuthorization((settings) =>
+                {
+                    settings.AddPolicy("Authorized", p => p.RequireAuthenticatedUser());
+                    settings.AddPolicy("Admin", p => p.RequireClaim(ClaimTypes.Role, "Admin"));
+                })
                 .AddDefaultEndpointSelectorPolicy()
                 .AddSystemTextJson()
-                .AddUserContextBuilder(context => new GraphQLUserContext { User = context.User })
+                .AddUserContextBuilder((context) =>
+                {
+                    return new GraphQLUserContext { User = context.User };
+                })
                 .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddWebSockets()
                 .AddDataLoader()
@@ -66,7 +97,6 @@ namespace Api
             services.AddAutoMapper(typeof(User).Assembly);
 
             services.SetupGraphQLServices();
-            services.AddGraphQLAuth((settings, provider) => settings.AddPolicy("AdminPolicy", p => p.RequireClaim("role", "Admin")));
 
             services.AddCors((o) =>
             {
@@ -98,6 +128,7 @@ namespace Api
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

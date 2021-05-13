@@ -1,10 +1,11 @@
-import React, { ReactNode, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { fetchCurrentUser } from "../../api/users/actions";
+import { validateAuth } from "../../common/auth";
 import { current } from "../../states/users";
 
 export interface IProps {
-  children?: ReactNode;
+  children: JSX.Element;
 }
 
 const AppRoot = (props: IProps) => {
@@ -15,15 +16,18 @@ const AppRoot = (props: IProps) => {
   const fetchUser = useCallback(fetchCurrentUser, []);
   useEffect(() => {
     if (user !== null) return;
+    validateAuth().then((authUser) => {
+      if (authUser === null) return;
 
-    fetchUser().then((u) => {
-      if (u === null) return;
+      fetchUser().then((u) => {
+        if (u === null) return;
 
-      setUser(u);
+        setUser(u);
+      });
     });
   }, [fetchUser, setUser, user]);
 
-  return <>{children}</>;
+  return children;
 };
 
 export default AppRoot;

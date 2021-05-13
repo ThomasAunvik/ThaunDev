@@ -5,40 +5,39 @@ using GraphQL.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Api.Schemas.Queries
 {
-    public class UserQueries : ObjectGraphType, IGraphQueryMarker
+    public class UserQueries : IGraphQueryMarker
     {
-        private readonly IApiApplication _api;
-
-        public UserQueries(IApiApplication api)
+        public void SetupQueries(ObjectGraphType graph, IApiApplication api)
         {
-            _api = api;
-
-            FieldAsync<GraphUserType>("current",
+            graph.FieldAsync<GraphUserType>("current",
                 resolve: async (context) =>
                 {
                     object name;
-                    context.UserContext.TryGetValue("name", out name);
-                    return await _api.Users.GetCurrentUser();
-                });
+                    context.UserContext.TryGetValue(ClaimTypes.NameIdentifier, out name);
 
-            this.AuthorizeWith("AdminPolicy");
-            Field<ListGraphType<GraphUserType>>("users", resolve: context => api.Users.AllUsers.Take(100));
+                    return await api.Users.GetCurrentUser();
+                })
+                .AuthorizeWith("Authorized");
 
-            this.AuthorizeWith("AdminPolicy");
-            FieldAsync<GraphUserType>("user",
+            graph.Field<ListGraphType<GraphUserType>>("users", resolve: context => api.Users.AllUsers.Take(100))
+                 .AuthorizeWith("Admin");
+
+            graph.FieldAsync<GraphUserType>("user",
                 arguments: new QueryArguments(
                     new QueryArgument<IntGraphType> { Name = "id" }
                 ),
                 resolve: async (context) =>
                 {
                     var recievedId = context.GetArgument<int>("id");
-                    return await _api.Users.GetUser(recievedId);
-                });
+                    return await api.Users.GetUser(recievedId);
+                })
+                .AuthorizeWith("Admin");
         }
     }
 }

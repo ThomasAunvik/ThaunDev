@@ -1,6 +1,7 @@
 ﻿using Api.Schemas.Controllers;
 using Domain.GraphObjects;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -19,9 +20,9 @@ namespace Api.Schemas
     {
         public IGraphUserController Users { get; }
 
-        public ApiApplication(IMediator mediator)
+        public ApiApplication(IMediator mediator, IHttpContextAccessor context)
         {
-            Users = new GraphUserController(mediator);
+            Users = new GraphUserController(mediator, context);
         }
     }
 }
