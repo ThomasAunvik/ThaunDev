@@ -41,6 +41,20 @@ namespace Api.Schemas.Mutations
                     return await api.Users.EditUser(recievedId, recievedUser);
                 })
                 .AuthorizeWith("Authorized");
+
+            graph.FieldAsync<GraphImageType>("editprofilepicture",
+                arguments: new QueryArguments(
+                    new QueryArgument<IntGraphType> { Name = "id" },
+                    new QueryArgument<StringGraphType> { Name = "image" }
+                ),
+                resolve: async (context) =>
+                {
+                    var recievedId = context.GetArgument<int>("id");
+                    var recievedImage = context.GetArgument<string>("image");
+
+                    return await api.Users.EditProfilePicture(recievedId, recievedImage);
+                })
+                .AuthorizeWith("Authorized");
         }
     }
 }

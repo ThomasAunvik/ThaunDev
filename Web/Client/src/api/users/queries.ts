@@ -44,3 +44,12 @@ export const mutationEditUser = gql`
     }
   }
 `;
+
+export const mutationChangeProfilePicture = gql`
+  mutation ChangeProfilePicture($id: Int, $image: String) {
+    editprofilepicture(id: $id, image: $image) {
+      name
+      data
+    }
+  }
+`;

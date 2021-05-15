@@ -20,6 +20,7 @@ namespace Api.Schemas.Controllers
         Task<GraphUser> GetUser(int id);
         GraphUser AddUser(GraphUser user);
         Task<GraphUser> EditUser(int id, GraphUser user);
+        Task<GraphImage> EditProfilePicture(int id, string image);
     }
 
     public class GraphUserController : GraphBaseController, IGraphUserController
@@ -50,6 +51,11 @@ namespace Api.Schemas.Controllers
         public async Task<GraphUser> EditUser(int id, GraphUser user)
         {
             return await _mediator.Send(new Edit.Command { Id = id, AuthId = AuthId, Roles = UserRoles, User = user });
+        }
+
+        public async Task<GraphImage> EditProfilePicture(int id, string image)
+        {
+            return await _mediator.Send(new ChangeProfilePicture.Command { AuthId = AuthId, Data = image });
         }
     }
 }

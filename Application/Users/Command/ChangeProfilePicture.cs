@@ -1,4 +1,5 @@
 ﻿using Application.Infrastructure;
+using Application.Users.Query;
 using AutoMapper;
 using Domain.GraphObjects;
 using FluentValidation;
@@ -9,6 +10,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Application.Users.Command
 {
@@ -30,7 +32,11 @@ namespace Application.Users.Command
 
         public class Handler : BaseHandler, IRequestHandler<Command, GraphImage>
         {
-            public Handler(IServiceProvider provider, IMapper mapper, IConfiguration config) : base(provider, mapper, config) { }
+            private readonly IMediator _mediator;
+
+            public Handler(IServiceProvider provider, IMapper mapper, IConfiguration config, IMediator mediator) : base(provider, mapper, config) {
+                _mediator = mediator;
+            }
 
             public async Task<GraphImage> Handle(Command request, CancellationToken c)
             {
@@ -38,24 +44,20 @@ namespace Application.Users.Command
                 if (user == null)
                     throw new Exception("Failed to find User");
 
-                var b64string = request.Data;
-                byte[] buffer = new byte[((b64string.Length * 3) + 3) / 4 -
-                    (b64string.Length > 0 && b64string[b64string.Length - 1] == '=' ?
-                        b64string.Length > 1 && b64string[b64string.Length - 2] == '=' ?
-                            2 : 1 : 0)];
+                string b64string = request.Data;
 
-                var converted = Convert.TryFromBase64String(b64string, buffer, out int writtenBytes);
-                if (!converted) throw new Exception("Image Data not Base64");
+                var converted = Convert.FromBase64String(b64string);
+                if (converted.Length <= 0) throw new Exception("Image Data not Base64");
 
                 string storePath = Path.Join(_app.filePath, user.Id.ToString(), "images", "profile.png");
 
-                await File.WriteAllBytesAsync(storePath, buffer, c);
+                await File.WriteAllBytesAsync(storePath, converted);
 
-                return new GraphImage
+                return await _mediator.Send(new ProfilePicture.Query
                 {
-                    Name = "ProfilePicture",
-                    Data = b64string
-                };
+                    AuthId = request.AuthId,
+                    Id = user.Id
+                });
             }
         }
     }

@@ -39,12 +39,14 @@ export const client = new ApolloClient({
 
 export const fetchObj = <Type>(
   query: DocumentNode,
-  field: string
+  field: string,
+  network?: boolean
 ): Promise<Type | null> => {
   return new Promise<Type | null>((success) => {
     client
       .query({
         query: query,
+        fetchPolicy: network ? "network-only" : "cache-first",
       })
       .then((result) => {
         if (result.error || result.errors) {
