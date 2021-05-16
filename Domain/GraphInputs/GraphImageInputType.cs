@@ -7,8 +7,8 @@ namespace Domain.GraphInputs
     {
         public GraphImageInputType()
         {
-            Field(o => o.Name);
-            Field(o => o.Data);
+            Field(o => o.Name, nullable: true);
+            Field(o => o.Data, nullable: true);
         }
     }
 }

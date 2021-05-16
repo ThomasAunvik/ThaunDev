@@ -11,6 +11,7 @@ namespace Domain.GraphTypes
             Field(o => o.Username);
             Field(o => o.FirstName);
             Field(o => o.LastName);
+            Field(o => o.Email);
 
             Field(o => o.ProfilePicture, type: typeof(GraphImageType));
         }

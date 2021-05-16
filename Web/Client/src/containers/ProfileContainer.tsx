@@ -18,7 +18,6 @@ import {
   editUser,
   fetchCurrentUser,
 } from "../api/users/actions";
-import { IUser } from "../models/user";
 import { current } from "../states/users";
 import NotLoggedInContainer from "./NotLoggedInContainer";
 
@@ -61,49 +60,13 @@ const ProfileContainer = () => {
   return (
     <div>
       <h1>Profile</h1>
-      <Grid container spacing={2}>
+      <Grid container spacing={4}>
         <Grid item>
-          <Avatar
-            alt={user.firstName + " " + user.lastName}
-            src={user.profilePicture?.data}
-            className={styles.largeProfilePicture}
-          />
-
-          <Button
-            className={styles.changeProfilePictureButton}
-            variant="outlined"
-            onClick={() => setUploadOpen(true)}
-          >
-            Upload
-          </Button>
-          <DropzoneDialog
-            open={uploadOpen}
-            onSave={(files) => onProfileImageUpload(files)}
-            acceptedFiles={["image/jpeg", "image/png"]}
-            showPreviews={true}
-            onClose={() => setUploadOpen(false)}
-            filesLimit={1}
-            showAlerts={false}
-          />
-        </Grid>
-        <Grid item xs={6}>
           <Formik
             enableReinitialize
             initialValues={user}
-            onSubmit={async (editedUser, formikhelper) => {
-              const compare1 = new Map(Object.entries(editedUser));
-              const compare2 = new Map(Object.entries(user));
-
-              const changedValues = new Map<string, any>();
-              Array.from(compare1.keys()).forEach((x) => {
-                if (compare1.get(x) !== compare2.get(x))
-                  changedValues.set(x, compare1.get(x));
-              });
-
-              const updatedUser = await editUser(user.id, {
-                ...(Object.fromEntries(changedValues) as IUser),
-                id: user.id,
-              });
+            onSubmit={async (editedUser) => {
+              const updatedUser = await editUser(user.id, editedUser);
 
               if (updatedUser) {
                 setUser(updatedUser);
@@ -149,6 +112,16 @@ const ProfileContainer = () => {
                     value={values.lastName}
                   />
                 </div>
+                <div className={styles.inputSpacing}>
+                  <InputLabel>Email</InputLabel>
+                  <Input
+                    name="email"
+                    type="email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.email}
+                  />
+                </div>
                 <div>
                   <ButtonGroup>
                     <Button
@@ -173,6 +146,34 @@ const ProfileContainer = () => {
             )}
           </Formik>
         </Grid>
+        <Grid item>
+          <Avatar
+            alt={user.firstName + " " + user.lastName}
+            src={user.profilePicture?.data}
+            className={styles.largeProfilePicture}
+          />
+          <div>
+            <Button
+              className={styles.changeProfilePictureButton}
+              variant="outlined"
+              onClick={() => setUploadOpen(true)}
+            >
+              Upload
+            </Button>
+            <p className={styles.smallUploadText}>Allowed: png/jpeg/gif</p>
+            <p className={styles.smallUploadText}>Max: 20MB</p>
+          </div>
+          <DropzoneDialog
+            open={uploadOpen}
+            onSave={(files) => onProfileImageUpload(files)}
+            acceptedFiles={["image/jpeg", "image/png"]}
+            showPreviews={true}
+            onClose={() => setUploadOpen(false)}
+            filesLimit={1}
+            maxFileSize={20000000}
+            showAlerts={false}
+          />
+        </Grid>
       </Grid>
     </div>
   );
@@ -180,6 +181,11 @@ const ProfileContainer = () => {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    smallUploadText: {
+      fontSize: "12px",
+      marginTop: "0",
+      marginBottom: "0",
+    },
     columnSpacing: {
       marginBottom: theme.spacing(2),
     },

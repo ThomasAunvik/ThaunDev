@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: "1em",
     },
     appRoot: {
-      height: "100vh",
+      height: "100%",
     },
   })
 );

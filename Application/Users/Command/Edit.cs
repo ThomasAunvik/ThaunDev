@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -52,6 +53,13 @@ namespace Application.Users.Command
                 if(!string.IsNullOrWhiteSpace(request.User.Username)) user.Username = request.User.Username;
                 if (!string.IsNullOrWhiteSpace(request.User.FirstName)) user.FirstName = request.User.FirstName;
                 if (!string.IsNullOrWhiteSpace(request.User.LastName)) user.LastName = request.User.LastName;
+                if (!string.IsNullOrWhiteSpace(request.User.Email))
+                {
+                    var isValid = MailAddress.TryCreate(request.User.Email, out MailAddress mail);
+                    if (!isValid) throw new Exception("Email is invalid");
+
+                    user.Email = mail.Address;
+                }
 
                 await _context.SaveChangesAsync(c);
 

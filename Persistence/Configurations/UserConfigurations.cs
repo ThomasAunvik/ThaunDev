@@ -13,6 +13,8 @@ namespace Persistence.Configurations
             entity.Property(e => e.Id).HasColumnName("Id").HasColumnType("integer");
             entity.Property(e => e.FirstName).HasColumnName("FirstName").HasColumnType("text");
             entity.Property(e => e.LastName).HasColumnName("LastName").HasColumnType("text");
+            entity.Property(e => e.Email).HasColumnName("Email").HasColumnType("text");
+
             entity.Property(e => e.AuthId).HasColumnName("AuthId").HasColumnType("text");
         }
     }

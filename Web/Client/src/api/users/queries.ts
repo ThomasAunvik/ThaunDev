@@ -7,6 +7,7 @@ export const queryCurrentUser = gql`
       username
       lastName
       firstName
+      email
       profilePicture {
         name
         data
@@ -22,6 +23,7 @@ export const queryGetUser = gql`
       username
       lastName
       firstName
+      email
       profilePicture {
         name
         data
@@ -37,6 +39,7 @@ export const mutationEditUser = gql`
       username
       lastName
       firstName
+      email
       profilePicture {
         name
         data

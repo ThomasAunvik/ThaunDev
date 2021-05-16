@@ -32,8 +32,22 @@ const authMiddleware = new ApolloLink(((operation, forward) => {
   return forward(operation);
 }) as RequestHandler);
 
+const cleanTypeName = new ApolloLink((operation, forward) => {
+  if (operation.variables) {
+    const omitTypename = (key: string, value: any) =>
+      key === "__typename" ? undefined : value;
+    operation.variables = JSON.parse(
+      JSON.stringify(operation.variables),
+      omitTypename
+    );
+  }
+  return forward(operation).map((data) => {
+    return data;
+  });
+});
+
 export const client = new ApolloClient({
-  link: from([authMiddleware, httpLink]),
+  link: from([cleanTypeName, authMiddleware, httpLink]),
   cache: new InMemoryCache(),
 });
 
